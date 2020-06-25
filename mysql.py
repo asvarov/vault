@@ -20,3 +20,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqlconnector://{login}:{passwo
 db = SQLAlchemy(app)
 
 print(app.config['SQLALCHEMY_DATABASE_URI'])
+
+vault write database/config/test1
+plugin_name = mysql - database - plugin
+connection_url = "{{username}}:{{password}}@tcp(192.168.10.10:3306)/"
+allowed_roles = "my-role"
+username = "root"
+password = "P@ssw0rd"
+
+
+vault write database/roles/my-role \
+    db_name=test1 \
+    creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
+    default_ttl="1h" \
+    max_ttl="24h"
+
+vault read database/creds/my-role

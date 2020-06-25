@@ -41,3 +41,27 @@ path "kv/*" {
 enable audit
 
 vault audit enable file file_path=/vault/logs/vault_audit.json
+
+
+Vault MYSQL database 
+# create mysql user to create dynamically generates database credentials
+CREATE USER 'creater'@'localhost' IDENTIFIED BY 'P@ssw0rd';
+GRANT ALL PRIVILEGES ON *.* TO 'creater'@'localhost' WITH GRANT OPTION;
+CREATE USER 'creater'@'%' IDENTIFIED BY 'P@ssw0rd';
+GRANT ALL PRIVILEGES ON *.* TO 'creater'@'%' WITH GRANT OPTION;
+
+vault write database/config/my-mysql-database \
+    plugin_name=mysql-database-plugin \
+    connection_url="{{username}}:{{password}}@tcp(192.168.10.10:3306)/" \
+    allowed_roles="my-role" \
+    username="creater" \
+    password="P@ssw0rd"
+vault write database/roles/my-role \
+    db_name=my-mysql-database \
+    creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
+    default_ttl="1h" \
+    max_ttl="24h"
+    
+vault read database/creds/my-role
+
+select host, user from mysql.user;

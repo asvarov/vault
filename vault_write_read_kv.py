@@ -8,24 +8,7 @@ print(f'Client is authenticated: {r}')
 
 secrets_engines_list = client.sys.list_mounted_secrets_engines()['data']
 
-try:
-    client.sys.enable_secrets_engine(
-        backend_type='kv',
-        path='secret',
-        options={'version': 2},
-    )
-
-except hvac.exceptions.InvalidRequest as error:
-    print(f'Creation {error} - skipped.')
-
 print(secrets_engines_list.keys())
-
-#Tune Mount Configuration
-client.sys.tune_mount_configuration(
-    path='secret',
-    default_lease_ttl='3600s',
-    max_lease_ttl='8600s',
-)
 
 #Read Mount Configuration
 secret_backend_tuning = client.sys.read_mount_configuration(path='secret')
