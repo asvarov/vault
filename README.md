@@ -39,25 +39,25 @@ policy.hlc
 path "secret/*" {
   capabilities = ["list"]
 }
-# for KV v2 - must add "/data/" to path secret (existing path to secret - secret/alpkr)
+## for KV v2 - must add "/data/" to path secret (existing path to secret - secret/alpkr)
 path "secret/data/alpkr" {
   capabilities = ["read", "list"]
 }
 path "secret/data/dbserver" {
   capabilities = ["read", "list"]
 }
-# for KV v1 - use simply path to secret
+## for KV v1 - use simply path to secret
 path "kv/*" {
   capabilities = ["read", "list"]
 }
 
-*enable audit*
+## enable audit
 
 vault audit enable file file_path=/vault/logs/vault_audit.json
 
 
-Vault MYSQL database 
-# create mysql user to create dynamically generates database credentials
+#Vault MYSQL database 
+## create mysql user to create dynamically generates database credentials
 CREATE USER 'creater'@'localhost' IDENTIFIED BY 'P@ssw0rd';
 GRANT ALL PRIVILEGES ON *.* TO 'creater'@'localhost' WITH GRANT OPTION;
 CREATE USER 'creater'@'%' IDENTIFIED BY 'P@ssw0rd';
@@ -75,16 +75,16 @@ vault write database/roles/db_readonly \
     default_ttl="10m" \
     max_ttl="24h"
     
-*** Файл полиси для доступа к БД ***    
+## *** Файл полиси для доступа к БД ***    
 db_readonly.hcl
 path "database/creds/db_readonly" {
   capabilities = [ "read" ]
 }
 
-*** Создает токен под ПОЛИСИ ***
+## *** Создает токен под ПОЛИСИ ***
 vault token create -policy=db_readonly
 
-*** Генерирует логин пароль для МУСКЛА на default_ttl время ***
+## *** Генерирует логин пароль для МУСКЛА на default_ttl время ***
 VAULT_TOKEN=<token of policy=db_readonly> vault read database/creds/readonly
 
 select host, user from mysql.user;
