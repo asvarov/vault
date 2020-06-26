@@ -53,15 +53,23 @@ GRANT ALL PRIVILEGES ON *.* TO 'creater'@'%' WITH GRANT OPTION;
 vault write database/config/my-mysql-database \
     plugin_name=mysql-database-plugin \
     connection_url="{{username}}:{{password}}@tcp(192.168.10.10:3306)/" \
-    allowed_roles="my-role" \
+    allowed_roles="db-readonly" \
     username="creater" \
     password="P@ssw0rd"
-vault write database/roles/my-role \
+vault write database/roles/db_readonly \
     db_name=my-mysql-database \
     creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
-    default_ttl="1h" \
+    default_ttl="10m" \
     max_ttl="24h"
     
-vault read database/creds/my-role
-
+    
 select host, user from mysql.user;
+
+db_readonly.hcl
+path "database/creds/db_readonly" {
+  capabilities = [ "read" ]
+}
+
+vault token create -policy=db_readonly
+
+VAULT_TOKEN=<token of policy=db_readonly> vault read database/creds/readonly
